@@ -176,37 +176,50 @@ function IndoensiaParticipants() {
     setSelectedCategory(e.target.value);
   };
 
+  
   useEffect(() => {
     const scriptURL =
       "https://script.google.com/macros/s/AKfycbwdG8FFJtqvwS-YptQyCjTXj454PiGmY5HV8cPlpkI4mZB_TN9AWLRLo6RYGsIX2Nbl/exec";
-
+  
     const form = document.forms["regist-form"];
-
+    var buttonCounter = 0;
     if (form) {
       const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-          await fetch(scriptURL, { method: "POST", body: new FormData(form) });
+  
+        // Pengecekan paymentUrl di dalam handleSubmit
+        if (!paymentUrl) {
+          alert("Invoice berhasil di buat!! silahkan tekan tombol 'KIRIM' di akhir formulir pendaftaran");
+          return; // Menghentikan pengiriman jika URL pembayaran belum ada
+        }
 
-          // Setelah berhasil mengirim data, arahkan pengguna ke halaman lain
-          window.location.href = "/"; // Gantikan dengan URL halaman sukses Anda
-        } catch (error) {
-          console.error("Error saat mengirim data:", error);
-          // Handle error jika diperlukan
+        if (buttonCounter == 0) {
+          try {
+            buttonCounter++;
+            await fetch(scriptURL, { method: "POST", body: new FormData(form) });
+    
+            // Setelah berhasil mengirim data, arahkan pengguna ke halaman lain
+            window.location.href = "/"; // Gantikan dengan URL halaman sukses Anda
+          } catch (error) {
+            console.error("Error saat mengirim data:", error);
+            // Handle error jika diperlukan
+          }
         }
 
         form.reset();
       };
-
+  
       form.addEventListener("submit", handleSubmit);
-
+      
       // Membersihkan event listener saat komponen dilepas
       return () => {
         form.removeEventListener("submit", handleSubmit);
       };
-    }
-  }, []);
 
+
+    }
+  }, [paymentUrl]); // Memastikan useEffect dijalankan ulang jika paymentUrl berubah
+ 
   return (
     <>
       <section className="registration-section">
